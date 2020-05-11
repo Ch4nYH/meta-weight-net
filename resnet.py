@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import math
 from torch.autograd import Variable
 import torch.nn.init as init
-
+from itertools import chain
 
 def to_var(x, requires_grad=True):
     if torch.cuda.is_available():
@@ -250,7 +250,7 @@ class ResNet32(MetaModule):
         self.apply(_weights_init)
     
     def backbone(self):
-        return self.conv1.params() + self.bn1.params() + self.layer1.params() + self.layer2.params() + self.layer3.params()
+        return chain(self.conv1.params(), self.bn1.params(), self.layer1.params(), self.layer2.params(), self.layer3.params())
     
     def fc(self):
         return self.linear.params()

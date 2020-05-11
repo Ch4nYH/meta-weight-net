@@ -17,6 +17,7 @@ import torchvision.datasets as datasets
 from torch.autograd import Variable
 from torch.utils.data.sampler import SubsetRandomSampler
 import matplotlib.pyplot as plt
+from itertools import chain
 # import sklearn.metrics as sm
 # import pandas as pd
 # import sklearn.metrics as sm
