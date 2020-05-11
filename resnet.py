@@ -235,8 +235,6 @@ class BasicBlock(MetaModule):
         out += self.shortcut(x)
         out = F.relu(out)
         return out
-
-
 class ResNet32(MetaModule):
     def __init__(self, num_classes, block=BasicBlock, num_blocks=[5, 5, 5]):
         super(ResNet32, self).__init__()
@@ -250,6 +248,12 @@ class ResNet32(MetaModule):
         self.linear = MetaLinear(64, num_classes)
 
         self.apply(_weights_init)
+    
+    def backbone(self):
+        return self.conv1.params() + self.bn1.params() + self.layer1.params() + self.layer2.params() + self.layer3.params()
+    
+    def fc(self):
+        return self.linear.params()
 
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1]*(num_blocks-1)
