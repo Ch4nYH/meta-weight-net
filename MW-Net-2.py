@@ -258,7 +258,7 @@ def train(train_loader,train_meta_loader,model, vnet,optimizer_a, optimizer_b, o
 
         loss_backbone = torch.sum(cost_v * w_new[:, [0]])/len(cost_v)
         optimizer_a.zero_grad()
-        loss_backbone.backward()
+        loss_backbone.backward(retain_graph = True)
         optimizer_a.step()
         
         loss_fc = torch.sum(cost_v * w_new[:, [1]])/len(cost_v)
