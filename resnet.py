@@ -257,13 +257,6 @@ class ResNet32(MetaModule):
             self.layer2,
             self.layer3
         )
-        
-    
-    def backbone(self):
-        return self.backbone.parameters()
-    
-    def fc(self):
-        return self.linear.params()
 
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1]*(num_blocks-1)
