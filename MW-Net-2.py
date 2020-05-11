@@ -219,9 +219,9 @@ def train(train_loader,train_meta_loader,model, vnet,optimizer_a, optimizer_b, o
         
         l_f_meta = torch.sum(cost_v * v_lambda[:, [0]])/len(cost_v)
         meta_model.zero_grad()
-        grads = torch.autograd.grad(l_f_meta, (meta_model.backbone()), create_graph=True)
+        grads = torch.autograd.grad(l_f_meta, (meta_model.backbone.parameters()), create_graph=True)
         meta_lr = args.lr * ((0.1 ** int(epoch >= 80)) * (0.1 ** int(epoch >= 100)))   # For ResNet32
-        meta_model.children()[:-1].update_params(lr_inner=meta_lr, source_params=grads)
+        meta_model.backbone.update_params(lr_inner=meta_lr, source_params=grads)
         del grads
        
         y_g_hat = meta_model(inputs_val)
@@ -237,9 +237,9 @@ def train(train_loader,train_meta_loader,model, vnet,optimizer_a, optimizer_b, o
         cost_v = torch.reshape(cost, (len(cost), 1))
         l_f_meta = torch.sum(cost_v * v_lambda[:, [1]])/len(cost_v)
         meta_model.zero_grad()
-        grads = torch.autograd.grad(l_f_meta, (meta_model.fc()), create_graph=True)
+        grads = torch.autograd.grad(l_f_meta, (meta_model.fc.params()), create_graph=True)
         meta_lr = args.lr * ((0.1 ** int(epoch >= 80)) * (0.1 ** int(epoch >= 100)))   # For ResNet32
-        meta_model.children()[-1].update_params(lr_inner=meta_lr, source_params=grads)
+        meta_model.linear.update_params(lr_inner=meta_lr, source_params=grads)
         del grads
         y_g_hat = meta_model(inputs_val)
         l_g_meta = F.cross_entropy(y_g_hat, targets_val)
