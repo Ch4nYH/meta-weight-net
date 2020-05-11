@@ -201,7 +201,7 @@ class MetaSequential(nn.Sequential):
     def __init__(self, *args):
         super(MetaSequential, self).__init__(*args)
 
-    def parameters(self):
+    def params(self):
        for name, param in self.named_params(self):
             yield param
     

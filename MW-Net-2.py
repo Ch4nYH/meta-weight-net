@@ -217,9 +217,10 @@ def train(train_loader,train_meta_loader,model, vnet,optimizer_a, optimizer_b, o
         cost_v = torch.reshape(cost, (len(cost), 1))
         v_lambda = vnet(cost_v.data)
         
-        l_f_meta = torch.sum(cost_v * v_lambda[:, [0]])/len(cost_v)
+        l_f_meta1 = torch.sum(cost_v * v_lambda[:, [0]])/len(cost_v)
+        l_f_meta2 = torch.sum(cost_v * v_lambda[:, [1]])/len(cost_v)
         meta_model.zero_grad()
-        grads = torch.autograd.grad(l_f_meta, (meta_model.backbone.parameters()), create_graph=True)
+        grads = torch.autograd.grad(l_f_meta1, (meta_model.backbone.params()), create_graph=True, retain_graph = True)
         meta_lr = args.lr * ((0.1 ** int(epoch >= 80)) * (0.1 ** int(epoch >= 100)))   # For ResNet32
         meta_model.backbone.update_params(lr_inner=meta_lr, source_params=grads)
         del grads
@@ -228,16 +229,13 @@ def train(train_loader,train_meta_loader,model, vnet,optimizer_a, optimizer_b, o
         l_g_meta = F.cross_entropy(y_g_hat, targets_val)
         
         optimizer_vnet.zero_grad()
-        l_g_meta.backward()
+        l_g_meta.backward(retain_graph = True)
         optimizer_vnet.step()
         
         ### fc
         meta_model.load_state_dict(model.state_dict())
-        cost = F.cross_entropy(outputs, targets, reduce=False)
-        cost_v = torch.reshape(cost, (len(cost), 1))
-        l_f_meta = torch.sum(cost_v * v_lambda[:, [1]])/len(cost_v)
         meta_model.zero_grad()
-        grads = torch.autograd.grad(l_f_meta, (meta_model.linear.params()), create_graph=True)
+        grads = torch.autograd.grad(l_f_meta2, (meta_model.linear.params()), create_graph=True)
         meta_lr = args.lr * ((0.1 ** int(epoch >= 80)) * (0.1 ** int(epoch >= 100)))   # For ResNet32
         meta_model.linear.update_params(lr_inner=meta_lr, source_params=grads)
         del grads
@@ -298,7 +296,7 @@ if args.dataset == 'cifar100':
     num_classes = 100
 
 
-optimizer_model_backbone = torch.optim.SGD(model.backbone.parameters(), args.lr,
+optimizer_model_backbone = torch.optim.SGD(model.backbone.params(), args.lr,
                                   momentum=args.momentum, weight_decay=args.weight_decay)
 optimizer_model_fc = torch.optim.SGD(model.linear.params(), args.lr,
                                   momentum=args.momentum, weight_decay=args.weight_decay)
