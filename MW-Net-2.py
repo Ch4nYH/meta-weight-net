@@ -298,9 +298,9 @@ if args.dataset == 'cifar100':
     num_classes = 100
 
 
-optimizer_model_backbone = torch.optim.SGD(model.backbone(), args.lr,
+optimizer_model_backbone = torch.optim.SGD(model.backbone.parameters(), args.lr,
                                   momentum=args.momentum, weight_decay=args.weight_decay)
-optimizer_model_fc = torch.optim.SGD(model.fc(), args.lr,
+optimizer_model_fc = torch.optim.SGD(model.linear.params(), args.lr,
                                   momentum=args.momentum, weight_decay=args.weight_decay)
 optimizer_vnet = torch.optim.Adam(vnet.params(), 1e-3,
                              weight_decay=1e-4)
