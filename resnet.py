@@ -379,7 +379,7 @@ class VNet(MetaModule):
         # x = self.linear2(x)
         # x = self.relu1(x)
         out = self.linear2(x)
-        return F.sigmoid(out)
+        return out / torch.sum(torch.abs(out))
 
 
 
